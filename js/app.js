@@ -166,15 +166,17 @@ function initLensUI(caps, settings) {
 }
 
 function _buildLensBtnRow(facingDevs, caps) {
-  const row = document.getElementById('lensBtnRow');
-  if (!row) return;
-  row.innerHTML = '';
+  const bar = document.getElementById('lensBar');
+  if (!bar) return;
+  bar.innerHTML = '';
 
   if (facingDevs.length === 0) {
-    row.innerHTML = '<span class="text-secondary small">Single lens</span>';
+    // Single-lens device — hide the bar so it doesn't waste space
+    bar.style.display = 'none';
     return;
   }
 
+  bar.style.display = '';
   const lenses = lensManager.buildLensList(cam.facingMode);
 
   lenses.forEach((lens, i) => {
@@ -188,7 +190,7 @@ function _buildLensBtnRow(facingDevs, caps) {
       <span class="ap-lens-name">${lens.name}</span>
     `;
     btn.addEventListener('click', () => _selectLens(lens, caps));
-    row.appendChild(btn);
+    bar.appendChild(btn);
   });
 
   // Show info card for first lens

@@ -7,7 +7,7 @@
  */
 
 const REPO    = '/foto';
-const VERSION = 'v2';
+const VERSION = 'v3';
 const CACHE   = `aperture-${VERSION}`;
 
 const SHELL = [

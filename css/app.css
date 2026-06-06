@@ -531,6 +531,39 @@ html, body {
 
 .ap-zoom-snap-btn:hover { color: #fff; }
 
+/* ===== PERSISTENT LENS BAR (always-visible viewfinder overlay) ===== */
+
+.ap-lens-bar {
+  position: absolute;
+  top: calc(var(--ap-bar-height) + env(safe-area-inset-top, 0px));
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, transparent 100%);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 11;
+  pointer-events: auto;
+  /* hide if no lenses detected (JS adds 'has-lenses' class) */
+  min-height: 52px;
+}
+
+.ap-lens-bar::-webkit-scrollbar { display: none; }
+
+/* compact lens button variant used inside the bar */
+.ap-lens-bar .ap-lens-btn {
+  flex-shrink: 0;
+  min-width: 48px;
+  padding: 5px 9px;
+}
+
 /* ===== LENS PICKER ===== */
 
 .ap-lens-picker {
