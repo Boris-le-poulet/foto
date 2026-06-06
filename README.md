@@ -2,7 +2,7 @@
 
 A fully client-side, serverless camera web app. No build step, no backend, no tracking. Every photo stays on your device.
 
-**Live URL:** `https://<username>.github.io/foto/`
+**Live URL:** https://boris-le-poulet.github.io/foto/
 
 ---
 
