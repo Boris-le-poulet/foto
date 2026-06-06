@@ -1,0 +1,524 @@
+/* Aperture — custom styles (dark camera UI over Bootstrap 5.3 dark theme) */
+
+:root {
+  --ap-shutter-size: 72px;
+  --ap-icon-btn-size: 44px;
+  --ap-bar-height: 56px;
+  --ap-bottom-height: 180px;
+  --ap-accent: #1a9eff;
+  --ap-danger: #ff3b30;
+  --ap-focus-peak-color: rgba(255, 60, 0, 0.85);
+  --ap-zebra-color: rgba(255, 220, 0, 0.6);
+}
+
+/* ===== LAYOUT ===== */
+
+html, body {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.ap-view {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: #000;
+}
+
+/* ===== VIEWFINDER ===== */
+
+.ap-viewfinder {
+  position: relative;
+  flex: 1 1 auto;
+  overflow: hidden;
+  background: #000;
+  min-height: 0;
+}
+
+#preview {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: #000;
+}
+
+.ap-overlay-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.ap-overlay-canvas.tap-focus-active {
+  pointer-events: auto;
+  cursor: crosshair;
+}
+
+#captureCanvas { display: none !important; }
+
+/* ===== TOP BAR ===== */
+
+.ap-top-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.6) 0%, transparent 100%);
+  z-index: 10;
+  padding-top: max(8px, env(safe-area-inset-top));
+}
+
+/* ===== OVERLAY TOGGLES (right strip) ===== */
+
+.ap-overlay-toggles {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  z-index: 10;
+}
+
+.ap-overlay-toggle.active {
+  color: var(--ap-accent) !important;
+  background: rgba(26, 158, 255, 0.15) !important;
+}
+
+/* ===== STATUS BAR ===== */
+
+.ap-status-bar {
+  position: absolute;
+  bottom: 4px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  padding: 0 8px;
+  z-index: 10;
+  pointer-events: none;
+}
+
+/* ===== TIER BANNER ===== */
+
+.ap-tier-banner {
+  position: absolute;
+  top: 52px;
+  left: 8px;
+  right: 8px;
+  z-index: 11;
+}
+
+/* ===== COUNTDOWN OVERLAY ===== */
+
+.ap-countdown {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.4);
+  z-index: 20;
+  font-size: 25vmin;
+  font-weight: 900;
+  color: #fff;
+  text-shadow: 0 0 40px rgba(0,0,0,0.8);
+  animation: ap-pulse 1s ease-in-out infinite;
+}
+
+@keyframes ap-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* ===== CAMERA ERROR ===== */
+
+.ap-camera-error {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #0d0d0d;
+  color: #aaa;
+  z-index: 30;
+  text-align: center;
+  padding: 24px;
+}
+
+/* ===== BOTTOM BAR ===== */
+
+.ap-bottom-bar {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(0,0,0,0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 10px 16px;
+  padding-bottom: max(10px, env(safe-area-inset-bottom));
+  border-top: 1px solid rgba(255,255,255,0.08);
+  z-index: 10;
+}
+
+/* ===== MODE PILLS ===== */
+
+.ap-mode-pills {
+  display: flex;
+  gap: 4px;
+}
+
+.ap-mode-pill {
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.5);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 4px 14px;
+  border-radius: 100px;
+  transition: all 0.18s;
+  min-height: 30px;
+}
+
+.ap-mode-pill.active,
+.ap-mode-pill[aria-selected="true"] {
+  color: #fff;
+  background: rgba(255,255,255,0.12);
+}
+
+/* ===== CAPTURE MODE CHIPS ===== */
+
+.ap-capture-mode-row {
+  width: 100%;
+}
+
+.ap-capture-chip {
+  background: none;
+  border: 1px solid rgba(255,255,255,0.2);
+  color: rgba(255,255,255,0.6);
+  font-size: 0.7rem;
+  padding: 3px 10px;
+  border-radius: 100px;
+  white-space: nowrap;
+  min-height: 28px;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+
+.ap-capture-chip.active {
+  background: var(--ap-accent);
+  border-color: var(--ap-accent);
+  color: #fff;
+}
+
+/* ===== SHUTTER ROW ===== */
+
+.ap-shutter-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 32px;
+  width: 100%;
+}
+
+.ap-shutter-btn {
+  width: var(--ap-shutter-size);
+  height: var(--ap-shutter-size);
+  border-radius: 50%;
+  background: rgba(255,255,255,0.1);
+  border: 3px solid #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.1s, background 0.1s;
+  flex-shrink: 0;
+}
+
+.ap-shutter-btn:active {
+  transform: scale(0.92);
+  background: rgba(255,255,255,0.25);
+}
+
+.ap-shutter-btn.video-mode {
+  border-color: var(--ap-danger);
+}
+
+.ap-shutter-btn.recording .ap-shutter-inner {
+  border-radius: 4px;
+  background: var(--ap-danger);
+  animation: ap-record-pulse 1s ease-in-out infinite;
+}
+
+@keyframes ap-record-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+.ap-shutter-inner {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: #fff;
+  transition: all 0.15s;
+}
+
+.ap-shutter-btn.photo-mode .ap-shutter-inner { background: #fff; }
+.ap-shutter-btn.video-mode .ap-shutter-inner { background: var(--ap-danger); }
+.ap-shutter-btn.capturing .ap-shutter-inner {
+  transform: scale(0.7);
+  opacity: 0.5;
+}
+
+/* ===== ICON BUTTONS ===== */
+
+.ap-icon-btn {
+  min-width: var(--ap-icon-btn-size);
+  min-height: var(--ap-icon-btn-size);
+  width: var(--ap-icon-btn-size);
+  height: var(--ap-icon-btn-size);
+  background: rgba(255,255,255,0.08);
+  border: none;
+  border-radius: 50%;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background 0.15s;
+  flex-shrink: 0;
+  padding: 0;
+}
+
+.ap-icon-btn:hover,
+.ap-icon-btn:focus-visible {
+  background: rgba(255,255,255,0.18);
+  outline: 2px solid rgba(255,255,255,0.3);
+}
+
+.ap-icon-btn.active {
+  background: rgba(26, 158, 255, 0.25);
+  color: var(--ap-accent);
+}
+
+.ap-icon-btn[data-active="true"] {
+  color: var(--ap-accent);
+}
+
+.ap-side-btn {
+  background: rgba(255,255,255,0.06);
+}
+
+/* ===== SELECT ===== */
+
+.ap-select {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: #fff;
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  min-height: 32px;
+}
+
+.ap-select option { background: #1a1a1a; color: #fff; }
+
+/* ===== RESOLUTION ROW ===== */
+
+.ap-res-row {
+  display: flex;
+  align-items: center;
+  font-size: 0.75rem;
+}
+
+/* ===== PRO OFFCANVAS ===== */
+
+.ap-pro-offcanvas {
+  height: auto !important;
+  max-height: 75vh;
+  background: rgba(12, 12, 14, 0.97) !important;
+  border-top: 1px solid rgba(255,255,255,0.1) !important;
+}
+
+.ap-ctrl-group {
+  margin-bottom: 12px;
+}
+
+.ap-ctrl-group:last-child {
+  margin-bottom: 0;
+}
+
+.ap-ctrl-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.6);
+  margin-bottom: 4px;
+}
+
+.ap-ctrl-val {
+  color: #fff;
+  font-weight: 600;
+}
+
+.ap-ctrl-range:disabled {
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+.ap-auto-check {
+  width: 14px;
+  height: 14px;
+}
+
+/* ===== GALLERY VIEW ===== */
+
+.ap-gallery-header {
+  flex: 0 0 auto;
+  background: #111;
+  padding-top: max(8px, env(safe-area-inset-top));
+}
+
+.ap-gallery-grid {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 4px;
+  align-content: start;
+  background: #0a0a0a;
+  min-height: 0;
+}
+
+#view-gallery {
+  flex-direction: column;
+}
+
+.ap-gallery-item {
+  position: relative;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: 4px;
+  cursor: pointer;
+  background: #1a1a1a;
+}
+
+.ap-gallery-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.2s;
+}
+
+.ap-gallery-item:hover img { transform: scale(1.04); }
+
+.ap-gallery-item .ap-gallery-badge {
+  position: absolute;
+  bottom: 4px;
+  left: 4px;
+  background: rgba(0,0,0,0.65);
+  color: #fff;
+  font-size: 0.6rem;
+  padding: 2px 5px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.ap-gallery-item .ap-gallery-actions {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.ap-gallery-item:hover .ap-gallery-actions { display: flex; }
+
+/* ===== CALCULATOR ===== */
+
+.ap-calc-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px;
+  padding: 10px 12px;
+  height: 100%;
+}
+
+.ap-calc-results strong {
+  color: var(--ap-accent);
+}
+
+/* ===== TOAST ===== */
+
+.toast { border-radius: 12px; }
+
+/* ===== FOCUS RING ANIMATION ===== */
+
+@keyframes ap-focus-ring {
+  0% { transform: translate(-50%, -50%) scale(1.4); opacity: 0.8; }
+  100% { transform: translate(-50%, -50%) scale(1); opacity: 0; }
+}
+
+.ap-focus-ring {
+  position: absolute;
+  width: 64px;
+  height: 64px;
+  border: 2px solid #ffe800;
+  border-radius: 4px;
+  pointer-events: none;
+  animation: ap-focus-ring 0.5s ease-out forwards;
+  z-index: 15;
+}
+
+/* ===== SCROLLBAR ===== */
+
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 2px; }
+
+/* ===== RESPONSIVE ===== */
+
+@media (min-width: 768px) {
+  .ap-bottom-bar {
+    max-width: 600px;
+    margin: 0 auto;
+    border-radius: 20px 20px 0 0;
+  }
+}
+
+/* ===== ACCESSIBILITY ===== */
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Ensure no text below 11px */
+* { font-size: max(11px, inherit); }
+.small, small { font-size: max(11px, 0.875em) !important; }
+.form-label.small { font-size: max(11px, 0.8rem) !important; }
