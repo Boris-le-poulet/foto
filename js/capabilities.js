@@ -25,7 +25,7 @@ const SELECT_CAPS = [
   'whiteBalanceMode',
 ];
 
-export function bindCapabilities(caps, settings) {
+export function bindCapabilities(caps, settings, numDevices = 1) {
   // Range controls
   for (const name of RANGE_CAPS) {
     const cap = caps[name];
@@ -80,10 +80,10 @@ export function bindCapabilities(caps, settings) {
     });
   }
 
-  return detectTier(caps);
+  return detectTier(caps, numDevices);
 }
 
-export function detectTier(caps) {
+export function detectTier(caps, numVideoDevices = 1) {
   const hasImageCapture = 'ImageCapture' in window;
   const hasConstraints  = Object.keys(caps).length > 0;
   const hasMediaRecorder= typeof MediaRecorder !== 'undefined';
@@ -94,6 +94,8 @@ export function detectTier(caps) {
   const hasISO          = !!(caps.iso);
   const hasTorch        = caps.torch === true;
   const hasFocusDist    = !!(caps.focusDistance);
+  const hasMultipleLenses = numVideoDevices > 1;
+  const opticalZoomMax  = caps.zoom?.max ?? 1;
 
   let tier;
   if (!hasImageCapture) tier = 'C';
@@ -112,7 +114,21 @@ export function detectTier(caps) {
     hasISO,
     hasTorch,
     hasFocusDist,
+    hasMultipleLenses,
+    opticalZoomMax,
+    numVideoDevices,
   };
+}
+
+/**
+ * Estimate optical zoom snap points from the zoom capability range.
+ * Returns sorted array of zoom values at likely optical transitions.
+ */
+export function estimateOpticalSnaps(zoomCap) {
+  if (!zoomCap || !zoomCap.max) return [1];
+  const max = zoomCap.max;
+  const candidates = [0.5, 0.6, 0.7, 1.0, 1.5, 2.0, 3.0, 5.0, 10.0, 20.0, 30.0];
+  return candidates.filter(z => z <= max * 1.02);
 }
 
 export function renderTierBanner(tierInfo) {
@@ -152,6 +168,7 @@ export function renderCapabilityReport(caps, settings, tier) {
       ['ISO', tier.hasISO],
       ['Torch', tier.hasTorch],
       ['Manual Focus', tier.hasFocusDist],
+      ['Multi-lens', tier.hasMultipleLenses],
       ['Web Share', tier.hasShare],
       ['GPS', tier.hasGeoLocation],
     ];

@@ -85,6 +85,11 @@
       </button>
     </div>
 
+    <!-- Quick zoom snap bar (overlaid bottom of viewfinder) -->
+    <div id="zoomQuickBar" class="ap-zoom-quick-bar d-none" aria-label="Quick zoom">
+      <!-- Populated dynamically: 0.5× 1× 2× 5× etc. -->
+    </div>
+
     <!-- Status bar -->
     <div id="statusBar" class="ap-status-bar">
       <span id="statusMP" class="text-secondary small"></span>
@@ -260,36 +265,142 @@
         </div>
       </div>
 
-      <!-- Focus -->
+      <!-- Focus & Lens -->
       <div class="accordion-item bg-transparent border-secondary">
         <h2 class="accordion-header">
           <button class="accordion-button collapsed bg-transparent text-white small py-2" type="button"
             data-bs-toggle="collapse" data-bs-target="#accFocus">
-            <i class="bi bi-crosshair me-2"></i>Focus
+            <i class="bi bi-crosshair me-2"></i>Focus &amp; Lens
           </button>
         </h2>
         <div id="accFocus" class="accordion-collapse collapse" data-bs-parent="#proAccordion">
           <div class="accordion-body py-2 px-3">
+
+            <!-- Lens / Camera device picker -->
+            <div class="ap-ctrl-group" id="grpLensPicker">
+              <label class="ap-ctrl-label">
+                Lens
+                <span id="lensCapInfo" class="text-secondary" style="font-size:0.7rem;"></span>
+              </label>
+              <div id="lensBtnRow" class="ap-lens-picker d-flex flex-wrap gap-1 mb-1">
+                <!-- Populated dynamically by lens.js -->
+                <span class="text-secondary small">Detecting lenses…</span>
+              </div>
+              <!-- Per-lens info card -->
+              <div id="lensInfoCard" class="ap-lens-info-card d-none small">
+                <div class="d-flex justify-content-between">
+                  <span id="lensInfoName" class="fw-bold"></span>
+                  <span id="lensInfoFoV"  class="text-secondary"></span>
+                </div>
+                <div class="d-flex justify-content-between mt-1">
+                  <span class="text-secondary">Focal equiv.</span>
+                  <span id="lensInfoFocal" class="text-info"></span>
+                </div>
+                <div class="d-flex justify-content-between">
+                  <span class="text-secondary">Min focus dist.</span>
+                  <span id="lensInfoMinDist" class="text-info"></span>
+                </div>
+                <div class="d-flex justify-content-between">
+                  <span class="text-secondary">Max resolution</span>
+                  <span id="lensInfoMaxRes" class="text-info"></span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Zoom -->
+            <div class="ap-ctrl-group" id="grpZoom">
+              <label class="ap-ctrl-label">
+                Zoom
+                <span>
+                  <span id="valZoomLive" class="ap-ctrl-val">1.0×</span>
+                  <span id="zoomTypeLabel" class="small ms-1"></span>
+                </span>
+              </label>
+              <!-- Snap buttons (optical stops) -->
+              <div id="zoomSnapRow" class="ap-zoom-snaps mb-1">
+                <!-- Populated dynamically -->
+              </div>
+              <!-- Smooth zoom rail -->
+              <input type="range" class="form-range ap-ctrl-range ap-zoom-rail" id="ctrlZoom"
+                data-cap="zoom" disabled min="1" max="10" step="0.05" value="1"
+                aria-label="Zoom level">
+              <!-- Optical / digital quality bar -->
+              <div id="zoomQualityWrap" class="ap-zoom-quality d-none">
+                <div class="d-flex justify-content-between mb-1" style="font-size:0.7rem;">
+                  <span id="zoomQualityLabel" class="text-success">Optical</span>
+                  <span class="text-secondary">Optical max: <span id="zoomOpticalMax">—</span></span>
+                </div>
+                <div class="progress ap-zoom-quality-bar">
+                  <div id="zoomQualityFill" class="progress-bar bg-success" role="progressbar" style="width:100%"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Focus mode + AF actions -->
             <div class="ap-ctrl-group" id="grpFocusMode">
               <label class="ap-ctrl-label">Focus Mode</label>
-              <select class="form-select form-select-sm ap-select bg-dark text-white" id="ctrlFocusMode"
-                data-cap="focusMode" disabled>
-                <option value="auto">Auto</option>
-                <option value="manual">Manual</option>
-                <option value="single-shot">Single Shot</option>
-                <option value="continuous">Continuous</option>
-              </select>
+              <div class="d-flex gap-2 align-items-center">
+                <select class="form-select form-select-sm ap-select bg-dark text-white flex-grow-1" id="ctrlFocusMode"
+                  data-cap="focusMode" disabled>
+                  <option value="auto">Auto</option>
+                  <option value="manual">Manual</option>
+                  <option value="single-shot">Single Shot</option>
+                  <option value="continuous">Continuous</option>
+                </select>
+                <button id="btnAFTrigger" class="btn btn-outline-info btn-sm ap-af-btn" disabled title="Trigger autofocus">
+                  AF
+                </button>
+                <button id="btnAFLock" class="btn btn-outline-warning btn-sm ap-af-btn" disabled title="AF Lock — freeze focus at current distance">
+                  AF&#8209;L
+                </button>
+              </div>
+              <div id="afLockIndicator" class="ap-af-lock-indicator d-none mt-1">
+                <i class="bi bi-lock-fill me-1 text-warning"></i>
+                <span class="text-warning small">AF Locked at </span>
+                <span id="afLockDistVal" class="text-warning small fw-bold"></span>
+              </div>
             </div>
+
+            <!-- Manual focus distance -->
             <div class="ap-ctrl-group" id="grpFocusDistance">
-              <label class="ap-ctrl-label">Focus Distance <span class="ap-ctrl-val" id="valFocusDistance">∞</span></label>
+              <label class="ap-ctrl-label">
+                Focus Distance
+                <span>
+                  <span class="ap-ctrl-val" id="valFocusDistance">∞</span>
+                  <span id="valFocusZoneLabel" class="text-secondary small ms-1"></span>
+                </span>
+              </label>
               <input type="range" class="form-range ap-ctrl-range" id="ctrlFocusDistance"
-                data-cap="focusDistance" disabled min="0" max="1" step="0.01" value="0">
+                data-cap="focusDistance" disabled min="0" max="10" step="0.05" value="0"
+                aria-label="Focus distance">
+              <!-- Visual distance scale -->
+              <div class="ap-focus-scale">
+                <span>Macro</span>
+                <span>Portrait</span>
+                <span>Group</span>
+                <span>∞</span>
+              </div>
             </div>
-            <div class="ap-ctrl-group" id="grpZoom">
-              <label class="ap-ctrl-label">Zoom <span class="ap-ctrl-val" id="valZoom">1×</span></label>
-              <input type="range" class="form-range ap-ctrl-range" id="ctrlZoom"
-                data-cap="zoom" disabled min="1" max="10" step="0.1" value="1">
+
+            <!-- Focus zone selector -->
+            <div class="ap-ctrl-group" id="grpFocusZone">
+              <label class="ap-ctrl-label">Focus Zone</label>
+              <div class="d-flex gap-1 flex-wrap">
+                <button class="ap-zone-btn active" data-zone="center" title="Center-weighted AF">
+                  <i class="bi bi-record-circle me-1"></i>Center
+                </button>
+                <button class="ap-zone-btn" data-zone="spot" title="Precise spot AF at tapped point">
+                  <i class="bi bi-dot me-1"></i>Spot
+                </button>
+                <button class="ap-zone-btn" data-zone="wide" title="Full-frame wide AF">
+                  <i class="bi bi-fullscreen me-1"></i>Wide
+                </button>
+                <button class="ap-zone-btn" data-zone="tracking" title="Continuous tracking AF">
+                  <i class="bi bi-arrow-repeat me-1"></i>Tracking
+                </button>
+              </div>
             </div>
+
           </div>
         </div>
       </div>

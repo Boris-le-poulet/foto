@@ -7,7 +7,7 @@
  */
 
 const REPO    = '/foto';
-const VERSION = 'v1';
+const VERSION = 'v2';
 const CACHE   = `aperture-${VERSION}`;
 
 const SHELL = [
@@ -23,6 +23,7 @@ const SHELL = [
   `${REPO}/js/exif.js`,
   `${REPO}/js/calculator.js`,
   `${REPO}/js/gallery.js`,
+  `${REPO}/js/lens.js`,
   `${REPO}/workers/hdr.worker.js`,
   `${REPO}/workers/stack.worker.js`,
   `${REPO}/manifest.webmanifest`,

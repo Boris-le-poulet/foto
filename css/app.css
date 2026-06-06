@@ -493,6 +493,200 @@ html, body {
   z-index: 15;
 }
 
+/* ===== QUICK ZOOM BAR (viewfinder overlay) ===== */
+
+.ap-zoom-quick-bar {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 6px;
+  z-index: 12;
+  background: rgba(0,0,0,0.45);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-radius: 100px;
+  padding: 4px 10px;
+  pointer-events: auto;
+}
+
+.ap-zoom-snap-btn {
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.65);
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 3px 7px;
+  border-radius: 100px;
+  min-height: 28px;
+  min-width: 36px;
+  transition: all 0.15s;
+}
+
+.ap-zoom-snap-btn.active {
+  background: rgba(255,255,255,0.15);
+  color: #fff;
+}
+
+.ap-zoom-snap-btn:hover { color: #fff; }
+
+/* ===== LENS PICKER ===== */
+
+.ap-lens-picker {
+  gap: 6px;
+}
+
+.ap-lens-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 10px;
+  color: rgba(255,255,255,0.65);
+  padding: 6px 10px;
+  min-height: 44px;
+  min-width: 54px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.ap-lens-btn.active {
+  background: rgba(26,158,255,0.2);
+  border-color: var(--ap-accent);
+  color: #fff;
+}
+
+.ap-lens-btn:hover:not(.active) {
+  background: rgba(255,255,255,0.12);
+  color: #fff;
+}
+
+.ap-lens-mult {
+  font-size: 0.85rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.ap-lens-name {
+  font-size: 0.62rem;
+  opacity: 0.75;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+}
+
+/* Per-lens info card */
+.ap-lens-info-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px;
+  padding: 8px 10px;
+  margin-top: 6px;
+}
+
+/* ===== ZOOM RAIL & SNAPS ===== */
+
+.ap-zoom-rail {
+  height: 6px;
+  cursor: pointer;
+}
+
+.ap-zoom-snaps {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.ap-zoom-snap-chip {
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: rgba(255,255,255,0.6);
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 2px 9px;
+  border-radius: 100px;
+  min-height: 26px;
+  transition: all 0.15s;
+}
+
+.ap-zoom-snap-chip.active {
+  background: var(--ap-accent);
+  border-color: var(--ap-accent);
+  color: #fff;
+}
+
+.ap-zoom-quality-bar {
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255,255,255,0.1);
+  overflow: visible;
+}
+
+.ap-zoom-quality-bar .progress-bar {
+  transition: width 0.25s, background-color 0.25s;
+  border-radius: 2px;
+}
+
+/* ===== AF LOCK ===== */
+
+.ap-af-btn {
+  min-width: 38px;
+  min-height: 32px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.ap-af-btn.active {
+  background: rgba(255,193,7,0.2);
+}
+
+.ap-af-lock-indicator {
+  background: rgba(255,193,7,0.1);
+  border: 1px solid rgba(255,193,7,0.3);
+  border-radius: 6px;
+  padding: 4px 8px;
+}
+
+/* ===== FOCUS SCALE ===== */
+
+.ap-focus-scale {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.65rem;
+  color: rgba(255,255,255,0.35);
+  margin-top: 2px;
+  padding: 0 2px;
+}
+
+/* ===== FOCUS ZONE BUTTONS ===== */
+
+.ap-zone-btn {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: rgba(255,255,255,0.6);
+  font-size: 0.7rem;
+  padding: 4px 10px;
+  border-radius: 6px;
+  min-height: 30px;
+  transition: all 0.15s;
+}
+
+.ap-zone-btn.active {
+  background: rgba(26,158,255,0.2);
+  border-color: var(--ap-accent);
+  color: var(--ap-accent);
+}
+
+.ap-zone-btn:hover:not(.active) {
+  background: rgba(255,255,255,0.12);
+  color: #fff;
+}
+
 /* ===== SCROLLBAR ===== */
 
 ::-webkit-scrollbar { width: 4px; height: 4px; }
