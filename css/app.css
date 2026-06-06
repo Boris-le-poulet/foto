@@ -531,6 +531,33 @@ html, body {
 
 .ap-zoom-snap-btn:hover { color: #fff; }
 
+/* ===== MACRO INDICATOR ===== */
+
+.ap-macro-indicator {
+  position: absolute;
+  top: calc(var(--ap-bar-height) + env(safe-area-inset-top, 0px) + 52px); /* below lens bar */
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(52, 199, 89, 0.85);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 4px 12px;
+  border-radius: 100px;
+  z-index: 12;
+  pointer-events: none;
+  white-space: nowrap;
+  animation: ap-macro-pulse 2s ease-in-out infinite;
+}
+
+@keyframes ap-macro-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.75; }
+}
+
 /* ===== PERSISTENT LENS BAR (always-visible viewfinder overlay) ===== */
 
 .ap-lens-bar {

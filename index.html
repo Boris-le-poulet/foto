@@ -68,6 +68,11 @@
       <!-- Populated dynamically by lens.js after device enumeration -->
     </div>
 
+    <!-- Macro mode indicator badge -->
+    <div id="macroIndicator" class="ap-macro-indicator d-none" aria-live="polite">
+      <i class="bi bi-flower1 me-1"></i>Macro · 2 cm
+    </div>
+
     <!-- Overlay toggles (right side) -->
     <div class="ap-overlay-toggles">
       <button class="ap-icon-btn ap-overlay-toggle" data-overlay="grid" aria-label="Grid overlay" title="Grid">
@@ -145,6 +150,11 @@
         <button class="ap-capture-chip" data-cmode="longexp">Long Exp</button>
         <button class="ap-capture-chip" data-cmode="timelapse">Timelapse</button>
         <button class="ap-capture-chip" data-cmode="focusstack">Focus Stack</button>
+        <button class="ap-capture-chip d-none" data-cmode="macro" id="chipMacro">
+          <i class="bi bi-flower1 me-1"></i>Macro
+        </button>
+        <button class="ap-capture-chip" data-cmode="night">Night</button>
+        <button class="ap-capture-chip" data-cmode="astro">Astro</button>
       </div>
     </div>
 
@@ -283,13 +293,26 @@
 
             <!-- Per-lens info card (populated when a lens is selected) -->
             <div id="lensInfoCard" class="ap-lens-info-card d-none small mb-3">
-              <div class="d-flex justify-content-between">
+              <div class="d-flex justify-content-between align-items-start">
                 <span id="lensInfoName" class="fw-bold"></span>
-                <span id="lensInfoFoV"  class="text-secondary"></span>
+                <div class="d-flex gap-1 align-items-center">
+                  <span id="lensInfoMacroBadge" class="badge text-bg-success d-none">
+                    <i class="bi bi-flower1 me-1"></i>Macro
+                  </span>
+                  <span id="lensInfoFoV" class="text-secondary"></span>
+                </div>
               </div>
               <div class="d-flex justify-content-between mt-1">
                 <span class="text-secondary">Focal equiv.</span>
                 <span id="lensInfoFocal" class="text-info"></span>
+              </div>
+              <div class="d-flex justify-content-between">
+                <span class="text-secondary">Aperture</span>
+                <span id="lensInfoAperture" class="text-info"></span>
+              </div>
+              <div class="d-flex justify-content-between">
+                <span class="text-secondary">Sensor</span>
+                <span id="lensInfoSensor" class="text-info"></span>
               </div>
               <div class="d-flex justify-content-between">
                 <span class="text-secondary">Min focus dist.</span>

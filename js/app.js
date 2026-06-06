@@ -111,9 +111,10 @@ async function onCameraReady() {
 function initLensUI(caps, settings) {
   const zoomCap = caps.zoom;
 
-  // Build optical snap points
-  const facingDevs = lensManager.facingDevices(cam.facingMode);
-  lensManager.buildZoomSnaps(zoomCap, facingDevs.length);
+  // Build optical snap points with physical-lens mults for accurate quality classification
+  const facingDevs    = lensManager.facingDevices(cam.facingMode);
+  const detectedMults = facingDevs.map((d, i) => lensManager.parseDevice(d, i).mult);
+  lensManager.buildZoomSnaps(zoomCap, facingDevs.length, detectedMults);
 
   // Lens picker buttons
   _buildLensBtnRow(facingDevs, caps);
@@ -187,11 +188,18 @@ function _buildLensBtnRow(facingDevs, caps) {
     btn.title = `${lens.name} — ${lens.profile.fov} FoV`;
     btn.innerHTML = `
       <span class="ap-lens-mult">${lens.mult}×</span>
-      <span class="ap-lens-name">${lens.name}</span>
+      <span class="ap-lens-name">${lens.profile.shortName}</span>
     `;
     btn.addEventListener('click', () => _selectLens(lens, caps));
     bar.appendChild(btn);
   });
+
+  // Show/hide Macro chip based on whether an UW lens is present
+  const macroChip = document.getElementById('chipMacro');
+  if (macroChip) {
+    const hasUW = lenses.some(l => lensManager.isMacroCapable(l.mult));
+    macroChip.classList.toggle('d-none', !hasUW);
+  }
 
   // Show info card for first lens
   if (lenses[0]) _showLensInfoCard(lenses[0], caps);
@@ -256,22 +264,25 @@ function _buildZoomSnapRow(snaps, zoomCap) {
 }
 
 async function _selectLens(lens, caps) {
-  // Highlight selected button
   document.querySelectorAll('.ap-lens-btn').forEach(b =>
     b.classList.toggle('active', b.dataset.deviceId === lens.deviceId)
   );
   _showLensInfoCard(lens, caps);
 
-  // Switch to new device
+  // Toggle macro-specific UI
+  const isMacro = lensManager.isMacroCapable(lens.mult);
+  _showMacroIndicator(isMacro);
+  document.getElementById('chipMacro')?.classList.toggle('d-none', !isMacro);
+
   try {
     await cam.startWithDevice(lens.deviceId, document.getElementById('preview'));
-    // Re-read capabilities for the new lens
+    lensManager.activeDeviceId = lens.deviceId;
     const newCaps     = cam.getCapabilities();
     const newSettings = cam.getSettings();
     bindCapabilities(newCaps, newSettings, lensManager.facingDevices(cam.facingMode).length);
     initLensUI(newCaps, newSettings);
     updateProUIFromSettings(newSettings);
-    showToast(`Switched to ${lens.name} lens`, 'info');
+    showToast(`Switched to ${lens.mult}× ${lens.profile.shortName}`, 'info');
   } catch (e) {
     showToast(`Lens switch failed: ${e.message}`, 'danger');
   }
@@ -282,21 +293,31 @@ function _showLensInfoCard(lens, caps) {
   if (!card) return;
   card.classList.remove('d-none');
 
+  const profile  = lens.profile;
   const focusCap = caps?.focusDistance;
-  const minFocus = focusCap
-    ? formatFocusDist(focusCap.min ?? 0)
-    : '—';
 
-  const photoCaps = caps?.photoWidth;
-  const maxRes = photoCaps?.max && caps?.photoHeight?.max
+  // Min focus: prefer spec data, fall back to capability
+  const minFocusCm = profile.minFocusCm;
+  const minFocusStr = minFocusCm != null
+    ? (minFocusCm >= 100 ? `${(minFocusCm / 100).toFixed(1)} m` : `${minFocusCm} cm`)
+    : (focusCap ? formatFocusDist(focusCap.min ?? 0) : '—');
+
+  const maxRes = caps?.photoWidth?.max && caps?.photoHeight?.max
     ? `${caps.photoWidth.max}×${caps.photoHeight.max}`
-    : (caps?.width?.max ? `${caps.width.max}×${caps?.height?.max}` : '—');
+    : (caps?.width?.max ? `${caps.width.max}×${caps.height?.max}` : '—');
 
-  document.getElementById('lensInfoName').textContent   = `${lens.mult}× ${lens.name}`;
-  document.getElementById('lensInfoFoV').textContent    = lens.profile.fov;
-  document.getElementById('lensInfoFocal').textContent  = `~${lensManager.estimateFocalLength(lens.mult)} mm`;
-  document.getElementById('lensInfoMinDist').textContent= minFocus;
-  document.getElementById('lensInfoMaxRes').textContent = maxRes;
+  document.getElementById('lensInfoName').textContent    = `${lens.mult}× ${profile.name}`;
+  document.getElementById('lensInfoFoV').textContent     = profile.fov;
+  document.getElementById('lensInfoFocal').textContent   = `~${profile.focalEquiv ?? lensManager.estimateFocalLength(lens.mult)} mm`;
+  document.getElementById('lensInfoMinDist').textContent = minFocusStr;
+  document.getElementById('lensInfoMaxRes').textContent  = maxRes;
+
+  const apEl = document.getElementById('lensInfoAperture');
+  const snEl = document.getElementById('lensInfoSensor');
+  if (apEl) apEl.textContent = profile.aperture || '—';
+  if (snEl) snEl.textContent = profile.sensor   || '—';
+
+  document.getElementById('lensInfoMacroBadge')?.classList.toggle('d-none', !profile.macro);
 }
 
 // ---- Zoom quality indicator ----
@@ -414,11 +435,16 @@ function setupUIBindings() {
 
   // Capture mode chips
   document.querySelectorAll('.ap-capture-chip').forEach(btn => {
-    btn.addEventListener('click', () => {
+    btn.addEventListener('click', async () => {
       document.querySelectorAll('.ap-capture-chip').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       currentCaptureMode = btn.dataset.cmode;
       updateCaptureControls();
+      if (currentCaptureMode === 'macro') {
+        await _activateMacroMode();
+      } else {
+        _showMacroIndicator(false);
+      }
     });
   });
 
@@ -604,6 +630,34 @@ function setupUIBindings() {
   });
 }
 
+// ---- Macro mode helpers ----
+
+function _showMacroIndicator(visible) {
+  document.getElementById('macroIndicator')?.classList.toggle('d-none', !visible);
+}
+
+async function _activateMacroMode() {
+  const lenses = lensManager.buildLensList(cam.facingMode);
+  const uwLens = lenses.find(l => lensManager.isMacroCapable(l.mult));
+  if (!uwLens) { showToast('No ultrawide macro lens detected', 'warning'); return; }
+
+  if (uwLens.deviceId !== lensManager.activeDeviceId) {
+    await _selectLens(uwLens, cam.getCapabilities());
+  }
+  // Minimum focus distance
+  const caps = cam.getCapabilities();
+  if (caps.focusDistance) {
+    await cam.applyConstraint('focusMode', 'manual');
+    const minDist = caps.focusDistance.min ?? 0;
+    await cam.applyConstraint('focusDistance', minDist);
+    const fSlider = document.getElementById('ctrlFocusDistance');
+    if (fSlider) fSlider.value = minDist;
+    _updateFocusDistUI(minDist, caps.focusDistance);
+  }
+  _showMacroIndicator(true);
+  showToast('Macro: get within 2–5 cm of subject', 'info');
+}
+
 // ---- Shutter ----
 
 async function onShutter() {
@@ -638,6 +692,20 @@ async function onShutter() {
       }
       case 'focusstack': {
         if (modeCtrl) { const n = await modeCtrl.addFocusLayer(); showToast(`Layer ${n} captured`, 'info'); } break;
+      }
+      case 'macro': {
+        await modeCtrl.capturePhoto(opts);
+        break;
+      }
+      case 'night': {
+        const nightFrames = 20;
+        await modeCtrl.captureLongExposure(nightFrames, 'average', { ...opts, resolutionMode: 'fullsensor' });
+        break;
+      }
+      case 'astro': {
+        showToast('Astrophotography: keep device still for ~20 s', 'info');
+        await modeCtrl.captureLongExposure(40, 'max', { ...opts, resolutionMode: 'fullsensor' });
+        break;
       }
     }
   } catch (e) {
